@@ -22,5 +22,5 @@ name = "cargo-deps"
 path = "src/main.rs"
 
 [dependencies]
-clap = "2"
+structopt = "0.3.4"
 toml = "0.5"

@@ -1,7 +1,3 @@
-use crate::error::Result;
-use clap::ArgMatches;
-use std::str::FromStr;
-
 /// Configuration options.
 ///
 /// Create this object with `Default::default()` for the configuration equivalent to running without
@@ -51,35 +47,5 @@ impl Default for Config {
             optional_deps: false,
             transitive_deps: true,
         }
-    }
-}
-
-impl Config {
-    /// Creates a config object from command line arguments.
-    pub fn from_matches(m: &ArgMatches) -> Result<Self> {
-        let all_deps = m.is_present("all-deps");
-
-        Ok(Self {
-            depth: m
-                .value_of("depth")
-                .map(|depth| usize::from_str(depth).unwrap()),
-            dot_file: m.value_of("dot-file").map(|s| s.into()),
-            filter: m
-                .values_of("filter")
-                .map(|deps| deps.map(|dep| dep.into()).collect()),
-            include_orphans: m.is_present("include-orphans"),
-            include_versions: m.is_present("include-versions"),
-            manifest_path: m.value_of("manifest-path").unwrap_or("Cargo.toml").into(),
-            subgraph: m
-                .values_of("subgraph")
-                .map(|deps| deps.map(|dep| dep.into()).collect()),
-            subgraph_name: m.value_of("subgraph-name").map(|s| s.into()),
-
-            regular_deps: !m.is_present("no-regular-deps"),
-            build_deps: all_deps || m.is_present("build-deps"),
-            dev_deps: all_deps || m.is_present("dev-deps"),
-            optional_deps: all_deps || m.is_present("optional-deps"),
-            transitive_deps: !m.is_present("no-transitive-deps"),
-        })
     }
 }

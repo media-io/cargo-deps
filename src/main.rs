@@ -20,8 +20,8 @@ fn main() {
 }
 
 fn real_main() -> Result<()> {
-    let args: Command = Command::from_args();
-    let Command::Deps(args) = args;
+    let command = Command::from_args();
+    let Command::Deps(args) = command;
 
     let cfg = parse_args(args);
     let dot_file = cfg.dot_file.clone();

@@ -6,7 +6,10 @@ use crate::{
     util,
 };
 use std::{collections::HashMap, path::PathBuf};
-use toml::Value;
+use toml::{
+    value::{Array, Table},
+    Value,
+};
 
 // Map of dep names to their kinds.
 pub type DepKindsMap = HashMap<String, Vec<DepKind>>;
@@ -153,14 +156,14 @@ impl Project {
 
         if let Some(&Value::Array(ref packages)) = lock_toml.get("package") {
             for pkg in packages {
-                parse_package(&mut dg, pkg, root_crates)?;
+                parse_package(&mut dg, pkg.as_table().unwrap(), packages, root_crates)?;
             }
-        } else if let Some(root) = lock_toml.get("root") {
-            println!(
-                "Warning: deprecated [root] table found in lock file. Using [root] as [package]."
-            );
-
-            parse_package(&mut dg, root, root_crates)?;
+        } else if lock_toml.get("root").is_some() {
+            return Err(Error::Toml(
+                "Deprecated [root] table found in lock file. Please build the lock file with a \
+                 newer version of Rust."
+                    .into(),
+            ));
         } else {
             return Err(Error::Toml("Missing [package] table in lock file".into()));
         }
@@ -184,7 +187,13 @@ fn add_kind(dep_kinds_map: &mut DepKindsMap, key: String, kind: DepKind) {
     kinds.push(kind);
 }
 
-fn parse_package(dg: &mut DepGraph, pkg: &Value, root_crates: &[RootCrate]) -> Result<()> {
+#[allow(clippy::ptr_arg)]
+fn parse_package(
+    dg: &mut DepGraph,
+    pkg: &Table,
+    packages: &Array,
+    root_crates: &[RootCrate],
+) -> Result<()> {
     let name = pkg
         .get("name")
         .expect("No 'name' field in Cargo.lock [package] table")
@@ -228,7 +237,20 @@ fn parse_package(dg: &mut DepGraph, pkg: &Value, root_crates: &[RootCrate]) -> R
         for dep in deps {
             let dep_vec = dep.as_str().unwrap_or("").split(' ').collect::<Vec<_>>();
             let dep_name = dep_vec[0].to_string();
-            let dep_ver = dep_vec[1];
+            let dep_ver = if dep_vec.len() > 1 {
+                // If version is given, use it.
+                dep_vec[1]
+            } else {
+                // Otherwise, only one version of this dependency is present in the lock file.
+                packages
+                    .iter()
+                    .find(|pkg| pkg.get("name").unwrap().as_str().unwrap() == dep_name)
+                    .unwrap()
+                    .get("version")
+                    .unwrap()
+                    .as_str()
+                    .unwrap()
+            };
 
             if let Some(ref filter_deps) = filter {
                 if !filter_deps.contains(&dep_name) {

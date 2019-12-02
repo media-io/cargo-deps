@@ -1,5 +1,10 @@
 # Changelog
 
+## [1.3.0]
+
+- Fix parsing of newer Cargo.lock files
+- Move to structopt
+
 ## [1.2.0]
 
 - Extract main logic into separate library.

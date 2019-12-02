@@ -10,13 +10,35 @@
 [![Coverage Status](https://coveralls.io/repos/github/m-cat/cargo-deps/badge.svg?branch=master)](https://coveralls.io/github/m-cat/cargo-deps?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+<details>
+<summary>Table of Contents</summary>
+<!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+
+- [cargo-deps](#cargo-deps)
+    - [About](#about)
+    - [Installing](#installing)
+    - [Instructions](#instructions)
+        - [Dependency Kinds](#dependency-kinds)
+        - [Filtering](#filtering)
+            - [Depth](#depth)
+            - [Filtering transitive edges](#filtering-transitive-edges)
+        - [Subgraphs](#subgraphs)
+        - [Examples](#examples)
+        - [More info](#more-info)
+    - [License](#license)
+    - [Dependencies](#dependencies)
+    - [Changelog](#changelog)
+
+<!-- markdown-toc end -->
+</details>
+
 ## About
 
 Cargo subcommand for building dependency graphs of Rust projects.
 
 This project is an improvement on the unmaintained and buggy [cargo-graph](https://github.com/kbknapp/cargo-graph).
 
-Example:
+**Example:**
 
 ![safe_app dependencies](safe-client-libs.png)
 
@@ -110,3 +132,7 @@ Run `cargo deps -h` to see all available options.
 ## Dependencies
 
 ![cargo-deps dependencies](cargo-deps.png)
+
+## Changelog
+
+[Changelog](CHANGELOG.md)

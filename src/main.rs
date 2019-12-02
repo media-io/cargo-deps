@@ -2,72 +2,17 @@
 
 #![forbid(unsafe_code)]
 
-#[macro_use]
-extern crate clap;
-
+use crate::args::{parse_args, Command};
 use std::{
     fs::File,
     io::{self, Write},
     path::Path,
-    str::FromStr,
 };
+use structopt::StructOpt;
 
-use cargo_deps::{get_dep_graph, render_dep_graph, Config, Result};
-use clap::{App, AppSettings, Arg, ArgMatches, SubCommand};
+use cargo_deps::{get_dep_graph, render_dep_graph, Result};
 
-const USAGE: &str = "\
-cargo-deps writes a graph in dot format to standard output.
-
-    Typical usage is `cargo deps | dot -Tpng > graph.png`.";
-
-// TODO: remove this and uncomment the next occurrence.
-#[rustfmt::skip]
-fn parse_cli<'a>() -> ArgMatches<'a> {
-    App::new("cargo-deps")
-        .version(crate_version!())
-        .bin_name("cargo")
-        .settings(&[AppSettings::GlobalVersion, AppSettings::SubcommandRequired])
-        .global_setting(AppSettings::ColoredHelp)
-        .subcommand(
-            SubCommand::with_name("deps")
-                .author(crate_authors!())
-                .about(crate_description!())
-                .usage(USAGE)
-                .args_from_usage(
-                    // #[rustfmt::skip]
-                    "
-                    -o --dot-file [PATH] 'Output file, or stdout if not specified'
-                       --filter [DEPNAMES] ... 'Only display provided deps'
-                       --include-orphans 'Don't purge orphan nodes (yellow). \
-                                          This is useful in some workspaces'
-                    -I --include-versions 'Include the dependency version on nodes'
-                       --subgraph [DEPNAMES] ... 'Group provided deps in their own subgraph'
-
-                      --all-deps 'Include all dependencies in the graph. \
-                                  Can be used with --no-regular-deps'
-                       --no-regular-deps 'Exclude regular dependencies from the graph'
-                       --build-deps 'Include build dependencies in the graph (purple)'
-                       --dev-deps 'Include dev dependencies in the graph (blue)'
-                       --optional-deps 'Include optional dependencies in the graph (red)'
-                       --no-transitive-deps 'Filter out edges that point to a transitive \
-                                             dependency'
-                    ",
-                )
-                .args(&[
-                    Arg::from_usage("-d --depth [DEPTH] 'The maximum dependency depth to display. \
-                                                         The default is no limit'")
-                        .validator(|v| usize::from_str(&v)
-                                   .map(|_| ())
-                                   .map_err(|e| format!("'{}': {}", v, e))
-                        ),
-                    Arg::from_usage("--manifest-path [PATH] 'Specify location of manifest file'")
-                        .default_value("Cargo.toml"),
-                    Arg::from_usage("--subgraph-name [NAME] 'Optional name of subgraph'")
-                        .requires("subgraph"),
-                ]),
-        )
-        .get_matches()
-}
+mod args;
 
 fn main() {
     // Call the real entry point and handle any errors that occur.
@@ -75,22 +20,21 @@ fn main() {
 }
 
 fn real_main() -> Result<()> {
-    let args = parse_cli();
+    let command = Command::from_args();
+    let Command::Deps(args) = command;
 
-    if let Some(args) = args.subcommand_matches("deps") {
-        let cfg = Config::from_matches(&args)?;
-        let dot_file = cfg.dot_file.clone();
+    let cfg = parse_args(args);
+    let dot_file = cfg.dot_file.clone();
 
-        // Get dependency graph & render it.
-        let out = get_dep_graph(cfg).and_then(render_dep_graph)?;
+    // Get dependency graph & render it.
+    let out = get_dep_graph(cfg).and_then(render_dep_graph)?;
 
-        // Output to stdout or render the dot file.
-        match dot_file {
-            None => Box::new(io::stdout()) as Box<dyn Write>,
-            Some(file) => Box::new(File::create(&Path::new(&file))?),
-        }
-        .write_all(&out.into_bytes())?;
+    // Output to stdout or render the dot file.
+    match dot_file {
+        None => Box::new(io::stdout()) as Box<dyn Write>,
+        Some(file) => Box::new(File::create(&Path::new(&file))?),
     }
+    .write_all(&out.into_bytes())?;
 
     Ok(())
 }

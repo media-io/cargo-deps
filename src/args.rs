@@ -1,3 +1,4 @@
+use std::{result::Result, str::FromStr};
 use structopt::{clap::AppSettings::ColoredHelp, StructOpt};
 
 use cargo_deps::Config;
@@ -17,7 +18,7 @@ pub enum Command {
 
 #[derive(Debug, StructOpt)]
 pub struct Args {
-    #[structopt(long = "depth", short = "d", value_name = "DEPTH")]
+    #[structopt(long = "depth", short = "d", value_name = "DEPTH", parse(try_from_str = parse_depth))]
     /// The maximum dependency depth to display. The default is no limit
     pub depth: Option<usize>,
 
@@ -41,7 +42,7 @@ pub struct Args {
     /// Group provided deps in their own subgraph
     pub subgraph: Option<Vec<String>>,
 
-    #[structopt(long = "subgraph-name", value_name = "NAME")]
+    #[structopt(long = "subgraph-name", value_name = "NAME", requires = "subgraph")]
     /// Optional name of subgraph
     pub subgraph_name: Option<String>,
 
@@ -76,6 +77,10 @@ pub struct Args {
     #[structopt(long = "no-transitive-deps")]
     /// Filter out edges that point to a transitive dependency
     pub no_transitive_deps: bool,
+}
+
+fn parse_depth(src: &str) -> Result<usize, String> {
+    usize::from_str(src).map_err(|e| format!("'{}': {}", src, e))
 }
 
 pub fn parse_args(args: Args) -> Config {

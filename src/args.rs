@@ -30,6 +30,10 @@ pub struct Args {
     /// Only display provided deps
     pub filter: Option<Vec<String>>,
 
+    #[structopt(long = "exclude", value_name = "DEPNAMES")]
+    /// Exclude provided deps
+    pub exclude: Option<Vec<String>>,
+
     #[structopt(
         long = "manifest-path",
         value_name = "PATH",
@@ -88,6 +92,7 @@ pub fn parse_args(args: Args) -> Config {
         depth: args.depth,
         dot_file: args.dot_file,
         filter: args.filter,
+        exclude: args.exclude,
         include_orphans: args.include_orphans,
         include_versions: args.include_versions,
         manifest_path: args.manifest_path,

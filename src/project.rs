@@ -216,6 +216,12 @@ fn parse_package(
             return Ok(());
         }
     }
+    let exclude = dg.cfg.exclude.clone();
+    if let Some(ref exclude_deps) = exclude {
+        if exclude_deps.contains(&name) {
+            return Ok(());
+        }
+    }
 
     let id = dg.find_or_add(&name, &ver);
 
@@ -254,6 +260,12 @@ fn parse_package(
 
             if let Some(ref filter_deps) = filter {
                 if !filter_deps.contains(&dep_name) {
+                    continue;
+                }
+            }
+
+            if let Some(ref exclude_deps) = exclude {
+                if exclude_deps.contains(&dep_name) {
                     continue;
                 }
             }

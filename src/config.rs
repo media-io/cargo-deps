@@ -10,6 +10,7 @@ pub struct Config {
     pub depth: Option<usize>,
     pub dot_file: Option<String>,
     pub filter: Option<Vec<String>>,
+    pub exclude: Option<Vec<String>>,
     pub include_orphans: bool,
     pub include_versions: bool,
     /// Default: "Cargo.toml".
@@ -35,6 +36,7 @@ impl Default for Config {
             depth: None,
             dot_file: None,
             filter: None,
+            exclude: None,
             include_orphans: false,
             include_versions: false,
             manifest_path: "Cargo.toml".into(),

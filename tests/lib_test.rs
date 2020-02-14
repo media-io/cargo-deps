@@ -31,3 +31,17 @@ fn render_dep_graph_self() {
          }\n"
     );
 }
+
+#[test]
+fn render_dep_graph_self_exclusion() {
+    let mut cfg = Config::default();
+    cfg.depth = Some(1);
+    cfg.exclude = Some(vec!["structopt".to_string()]);
+    let graph = get_dep_graph(cfg).unwrap();
+    let out = render_dep_graph(graph).unwrap();
+    assert_eq!(
+        out,
+        // #[rustfmt::skip]
+        "digraph dependencies {\n\tn6 [label=\"cargo-deps\", shape=box];\n\tn7 [label=\"toml\"];\n\n\tn6 -> n7;\n}\n"
+    );
+}

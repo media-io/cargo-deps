@@ -32,6 +32,8 @@ fn render_dep_graph_self() {
     );
 }
 
+// TODO: remove this and uncomment the next occurrence.
+#[rustfmt::skip]
 #[test]
 fn render_dep_graph_self_exclusion() {
     let mut cfg = Config::default();
@@ -42,6 +44,10 @@ fn render_dep_graph_self_exclusion() {
     assert_eq!(
         out,
         // #[rustfmt::skip]
-        "digraph dependencies {\n\tn6 [label=\"cargo-deps\", shape=box];\n\tn7 [label=\"toml\"];\n\n\tn6 -> n7;\n}\n"
+        "digraph dependencies {\n\
+         \tn6 [label=\"cargo-deps\", shape=box];\n\
+         \tn7 [label=\"toml\"];\n\n\
+         \tn6 -> n7;\n\
+         }\n"
     );
 }

@@ -20,6 +20,7 @@
     - [Instructions](#instructions)
         - [Dependency Kinds](#dependency-kinds)
         - [Filtering](#filtering)
+        - [Excluding](#excluding)
             - [Depth](#depth)
             - [Filtering transitive edges](#filtering-transitive-edges)
         - [Subgraphs](#subgraphs)
@@ -91,9 +92,9 @@ For example, if a dependency is both a build and a dev dependency, then it will 
 
 Some Rust projects have really big dependency trees and maybe you just want to display certain dependencies, like the ones in the same workspace. Fortunately, `cargo-deps` provides the `--filter` option for this use case. Unfortunately, you have to explicitly list all the dependencies you want to keep, and `cargo-deps` doesn't detect workspaces just yet.
 
-### Excluding
+#### Excluding
 
-It can be useful to exclude certain crates from the graphs, this can be achieved with the `--exclude` flag taking the undesired crate(s) as argument.
+It can be useful to exclude certain crates from the final graph. This can be achieved with the `--exclude` flag taking the undesired crates as arguments.
 
 #### Depth
 

@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.0]
+
+- Add --exclude option to remove dependencies from graphs.
+
 ## [1.3.0]
 
 - Fix parsing of newer Cargo.lock files

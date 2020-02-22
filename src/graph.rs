@@ -164,7 +164,8 @@ impl DepGraph {
 
         // Iterate over edges in topologically-sorted order to propogate the kinds.
         for ed in self.edges.iter() {
-            // Get the parent attributes and drop `parent` to avoid having two mutable references.
+            // Get the parent attributes and drop the `parent` binding to avoid having two
+            // simultaneous mutable references.
             let (
                 parent_name,
                 parent_depth,
@@ -342,7 +343,8 @@ impl DepGraph {
             // Skip nodes below the maximum depth, if specified.
             // These nodes will still be output later if specified in a subgraph.
             if let Some(depth) = self.cfg.depth {
-                if dep.depth.unwrap() > depth {
+                // The depth can be None if nodes have been filtered out.
+                if dep.depth.is_none() || dep.depth.unwrap() > depth {
                     continue;
                 }
             }

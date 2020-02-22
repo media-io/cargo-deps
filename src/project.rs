@@ -170,6 +170,10 @@ impl Project {
 
         // Check that all root crates were found in the lock files.
         for &RootCrate { ref name, ref ver } in root_crates.iter() {
+            if dep_is_excluded(name, self.cfg.clone()) {
+                continue;
+            }
+
             if dg.find(&name, &ver).is_none() {
                 return Err(Error::Toml(format!(
                     "Missing 'name': {} and 'version': {} in lock file",
@@ -207,20 +211,8 @@ fn parse_package(
         .expect("'version' field of [package] table in Cargo.lock was not a valid string")
         .to_owned();
 
-    // If --filter was specified, keep only packages that were indicated.
-    let filter = dg.cfg.filter.clone();
-    if let Some(ref filter_deps) = filter {
-        // NOTE: This will filter out root crates if they are passed in. This is useful for e.g.
-        // workspaces if the user does not want all roots.
-        if !filter_deps.contains(&name) {
-            return Ok(());
-        }
-    }
-    let exclude = dg.cfg.exclude.clone();
-    if let Some(ref exclude_deps) = exclude {
-        if exclude_deps.contains(&name) {
-            return Ok(());
-        }
+    if dep_is_excluded(&name, dg.cfg.clone()) {
+        return Ok(());
     }
 
     let id = dg.find_or_add(&name, &ver);
@@ -258,16 +250,8 @@ fn parse_package(
                     .unwrap()
             };
 
-            if let Some(ref filter_deps) = filter {
-                if !filter_deps.contains(&dep_name) {
-                    continue;
-                }
-            }
-
-            if let Some(ref exclude_deps) = exclude {
-                if exclude_deps.contains(&dep_name) {
-                    continue;
-                }
+            if dep_is_excluded(&dep_name, dg.cfg.clone()) {
+                continue;
             }
 
             if let Some(dep_kinds_map) = dg.root_deps_map.get(&name) {
@@ -282,4 +266,27 @@ fn parse_package(
     }
 
     Ok(())
+}
+
+pub fn dep_is_excluded(name: &str, cfg: Config) -> bool {
+    let name = &name.into();
+
+    // If --filter was specified, keep only packages that were indicated.
+    let filter = cfg.filter;
+    if let Some(ref filter_deps) = filter {
+        // NOTE: This will filter out root crates if they are passed in. This is useful for e.g.
+        // workspaces if the user does not want all roots.
+        if !filter_deps.contains(name) {
+            return true;
+        }
+    }
+
+    let exclude = cfg.exclude;
+    if let Some(ref exclude_deps) = exclude {
+        if exclude_deps.contains(name) {
+            return true;
+        }
+    }
+
+    false
 }

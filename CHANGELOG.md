@@ -1,5 +1,9 @@
 # Changelog
 
+## [1.4.1]
+
+- Fix error when depth is specified and deps have been excluded.
+
 ## [1.4.0]
 
 - Add --exclude option to remove dependencies from graphs.

@@ -10,9 +10,12 @@
 [![Coverage Status](https://coveralls.io/repos/github/m-cat/cargo-deps/badge.svg?branch=master)](https://coveralls.io/github/m-cat/cargo-deps?branch=master)
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
+**Note:** This crate is not actively worked on. Consider using one of the crates mentioned in [Alternatives](#alternatives).
+
 <details>
 <summary>Table of Contents</summary>
 <!-- markdown-toc start - Don't edit this section. Run M-x markdown-toc-refresh-toc -->
+**Table of Contents**
 
 - [cargo-deps](#cargo-deps)
     - [About](#about)
@@ -20,12 +23,13 @@
     - [Instructions](#instructions)
         - [Dependency Kinds](#dependency-kinds)
         - [Filtering](#filtering)
-        - [Excluding](#excluding)
+            - [Excluding](#excluding)
             - [Depth](#depth)
             - [Filtering transitive edges](#filtering-transitive-edges)
         - [Subgraphs](#subgraphs)
         - [Examples](#examples)
         - [More info](#more-info)
+    - [Alternatives](#alternatives)
     - [License](#license)
     - [Dependencies](#dependencies)
     - [Changelog](#changelog)
@@ -129,6 +133,13 @@ cargo deps --all-deps --include-orphans --subgraph safe_app safe_app_jni safe_au
 ### More info
 
 Run `cargo deps -h` to see all available options.
+
+## Alternatives
+
+While `cargo-deps` should work for most use cases, it has an outdated architecture and the creator is not working on active development. Some alternatives to consider are:
+
+- [`cargo-depgraph`](https://sr.ht/~jplatte/cargo-depgraph/): Has more features than `cargo-deps`.
+- [`cargo-tree`](https://doc.rust-lang.org/cargo/commands/cargo-tree.html): Displays dependencies in a textual format. As of Rust 1.44 is included in `cargo` as a subcommand.
 
 ## License
 

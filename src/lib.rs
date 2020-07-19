@@ -47,7 +47,6 @@ pub fn render_dep_graph(graph: DepGraph) -> Result<String> {
     let mut bytes: Vec<u8> = Vec::new();
     let mut writer = BufWriter::new(&mut bytes);
     graph.render_to(&mut writer)?;
-    drop(writer);
 
     String::from_utf8(bytes).map_err(|err| Error::Generic(err.to_string()))
 }

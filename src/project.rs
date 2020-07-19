@@ -187,7 +187,7 @@ impl Project {
 }
 
 fn add_kind(dep_kinds_map: &mut DepKindsMap, key: String, kind: DepKind) {
-    let kinds = dep_kinds_map.entry(key).or_insert_with(|| vec![]);
+    let kinds = dep_kinds_map.entry(key).or_insert_with(Vec::new);
     kinds.push(kind);
 }
 

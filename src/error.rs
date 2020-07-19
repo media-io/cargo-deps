@@ -36,13 +36,19 @@ impl Error {
 }
 
 impl From<io::Error> for Error {
-    fn from(ioe: io::Error) -> Self {
-        Self::Io(ioe)
+    fn from(err: io::Error) -> Self {
+        Self::Io(err)
     }
 }
 
 impl From<toml::de::Error> for Error {
     fn from(err: toml::de::Error) -> Self {
         Self::Toml(format!("Could not parse input as TOML: {}", err))
+    }
+}
+
+impl<T> From<std::io::IntoInnerError<T>> for Error {
+    fn from(err: std::io::IntoInnerError<T>) -> Self {
+        Self::Generic(format!("Error: {}", err))
     }
 }

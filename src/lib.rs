@@ -44,11 +44,11 @@ pub fn get_dep_graph(cfg: Config) -> Result<DepGraph> {
 
 /// Converts the dependency graph representation into a graphviz string.
 pub fn render_dep_graph(graph: DepGraph) -> Result<String> {
-    let mut bytes: Vec<u8> = Vec::new();
-    let mut writer = BufWriter::new(&mut bytes);
+    let bytes: Vec<u8> = Vec::new();
+    let mut writer = BufWriter::new(bytes);
     graph.render_to(&mut writer)?;
 
-    String::from_utf8(bytes).map_err(|err| Error::Generic(err.to_string()))
+    String::from_utf8(writer.into_inner()?).map_err(|err| Error::Generic(err.to_string()))
 }
 
 // Check that the manifest file name is "Cargo.toml".

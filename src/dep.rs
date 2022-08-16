@@ -20,6 +20,7 @@ pub struct RootCrate {
 pub struct ResolvedDep {
     pub name: String,
     pub ver: String,
+    pub registry: Option<String>,
     pub force_write_ver: bool,
     pub depth: Option<usize>,
 
@@ -33,10 +34,11 @@ pub struct ResolvedDep {
 }
 
 impl ResolvedDep {
-    pub fn new(name: String, ver: String) -> Self {
+    pub fn new(name: String, ver: String, registry: Option<String>) -> Self {
         Self {
             name,
             ver,
+            registry,
             force_write_ver: false,
             depth: None,
 

@@ -50,6 +50,10 @@ pub struct Args {
     /// Optional name of subgraph
     pub subgraph_name: Option<String>,
 
+    #[structopt(long = "registries")]
+    /// Filter dependencies by registries. Can be used multiple time with --registries custom-registry-name
+    pub registries: Option<Vec<String>>,
+
     #[structopt(long = "all-deps")]
     /// Include all dependencies in the graph. Can be used with --no-regular-deps
     pub all_deps: bool,
@@ -98,6 +102,7 @@ pub fn parse_args(args: Args) -> Config {
         manifest_path: args.manifest_path,
         subgraph: args.subgraph,
         subgraph_name: args.subgraph_name,
+        registries: args.registries,
 
         regular_deps: !args.no_regular_deps,
         build_deps: args.all_deps || args.build_deps,

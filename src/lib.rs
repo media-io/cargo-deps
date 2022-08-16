@@ -14,6 +14,7 @@ mod dep;
 mod error;
 mod graph;
 mod project;
+mod registries;
 mod util;
 
 pub use config::Config;

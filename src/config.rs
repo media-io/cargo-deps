@@ -17,6 +17,7 @@ pub struct Config {
     pub manifest_path: String,
     pub subgraph: Option<Vec<String>>,
     pub subgraph_name: Option<String>,
+    pub registries: Option<Vec<String>>,
 
     /// Default: true.
     pub regular_deps: bool,
@@ -42,6 +43,7 @@ impl Default for Config {
             manifest_path: "Cargo.toml".into(),
             subgraph: None,
             subgraph_name: None,
+            registries: None,
 
             regular_deps: true,
             build_deps: false,

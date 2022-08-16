@@ -3,6 +3,7 @@ use crate::{
     dep::{DepKind, RootCrate},
     error::{Error, Result},
     graph::DepGraph,
+    registries::Registries,
     util,
 };
 use std::{collections::HashMap, path::PathBuf};
@@ -151,12 +152,20 @@ impl Project {
     ) -> Result<DepGraph> {
         let lock_toml = util::toml_from_file(lock_path)?;
 
+        let registries = Registries::new();
+
         let mut dg = DepGraph::new(self.cfg.clone());
         dg.root_deps_map = root_deps_map;
 
         if let Some(&Value::Array(ref packages)) = lock_toml.get("package") {
             for pkg in packages {
-                parse_package(&mut dg, pkg.as_table().unwrap(), packages, root_crates)?;
+                parse_package(
+                    &mut dg,
+                    &registries,
+                    pkg.as_table().unwrap(),
+                    packages,
+                    root_crates,
+                )?;
             }
         } else if lock_toml.get("root").is_some() {
             return Err(Error::Toml(
@@ -194,6 +203,7 @@ fn add_kind(dep_kinds_map: &mut DepKindsMap, key: String, kind: DepKind) {
 #[allow(clippy::ptr_arg)]
 fn parse_package(
     dg: &mut DepGraph,
+    registries: &Registries,
     pkg: &Table,
     packages: &Array,
     root_crates: &[RootCrate],
@@ -210,12 +220,20 @@ fn parse_package(
         .as_str()
         .expect("'version' field of [package] table in Cargo.lock was not a valid string")
         .to_owned();
+    let source =
+        pkg.get("source")
+            .map(|source| {
+                registries.from_source(source.as_str().expect(
+                    "'source' field of [package] table in Cargo.lock was not a valid string",
+                ))
+            })
+            .flatten();
 
     if dep_is_excluded(&name, dg.cfg.clone()) {
         return Ok(());
     }
 
-    let id = dg.find_or_add(&name, &ver);
+    let id = dg.find_or_add(&name, &ver, &source);
 
     if dg.root_deps_map.contains_key(&name) {
         // If this is a root crate, check that this crate is in `root_crates` with the same version.
@@ -250,6 +268,14 @@ fn parse_package(
                     .unwrap()
             };
 
+            let dep_registry = packages
+                .iter()
+                .find(|pkg| pkg.get("name").unwrap().as_str().unwrap() == dep_name)
+                .unwrap()
+                .get("source")
+                .map(|source| registries.from_source(source.as_str().unwrap()))
+                .flatten();
+
             if dep_is_excluded(&dep_name, dg.cfg.clone()) {
                 continue;
             }
@@ -261,7 +287,7 @@ fn parse_package(
                 }
             }
 
-            dg.add_child(id, &dep_name, dep_ver);
+            dg.add_child(id, &dep_name, dep_ver, &dep_registry);
         }
     }
 

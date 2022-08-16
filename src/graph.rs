@@ -287,8 +287,14 @@ impl DepGraph {
         }
     }
 
-    pub fn add_child(&mut self, parent: usize, dep_name: &str, dep_ver: &str) {
-        let child = self.find_or_add(dep_name, dep_ver);
+    pub fn add_child(
+        &mut self,
+        parent: usize,
+        dep_name: &str,
+        dep_ver: &str,
+        registry: &Option<String>,
+    ) {
+        let child = self.find_or_add(dep_name, dep_ver, registry);
 
         if parent == child {
             return;
@@ -316,12 +322,15 @@ impl DepGraph {
         None
     }
 
-    pub fn find_or_add(&mut self, name: &str, ver: &str) -> usize {
+    pub fn find_or_add(&mut self, name: &str, ver: &str, registry: &Option<String>) -> usize {
         if let Some(i) = self.find(name, ver) {
             return i;
         }
-        self.nodes
-            .push(ResolvedDep::new(name.to_owned(), ver.to_owned()));
+        self.nodes.push(ResolvedDep::new(
+            name.to_owned(),
+            ver.to_owned(),
+            registry.clone(),
+        ));
         self.nodes.len() - 1
     }
 
@@ -353,6 +362,17 @@ impl DepGraph {
             // Orphan nodes will still be output later if specified in a subgraph.
             if !self.cfg.include_orphans {
                 if let DepKind::Unknown = dep.kind() {
+                    continue;
+                }
+            }
+
+            // Skip registries.
+            if let Some(registries) = &self.cfg.registries {
+                if let Some(registry) = &dep.registry {
+                    if !registries.contains(registry) {
+                        continue;
+                    }
+                } else {
                     continue;
                 }
             }

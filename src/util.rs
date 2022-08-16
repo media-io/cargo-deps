@@ -58,7 +58,7 @@ pub fn find_file_search_parent_dirs(file: &str) -> Result<PathBuf> {
                     file, pwd,
                 )));
             }
-            Some(ref dir) => dir.to_path_buf(),
+            Some(dir) => dir.to_path_buf(),
         };
     }
 }

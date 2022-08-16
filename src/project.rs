@@ -174,7 +174,7 @@ impl Project {
                 continue;
             }
 
-            if dg.find(&name, &ver).is_none() {
+            if dg.find(name, ver).is_none() {
                 return Err(Error::Toml(format!(
                     "Missing 'name': {} and 'version': {} in lock file",
                     name, ver

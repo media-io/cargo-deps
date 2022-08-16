@@ -1,7 +1,7 @@
 use crate::graph::{DepGraph, Node};
 use std::io::{Result, Write};
 
-#[derive(Debug, Copy, Clone, PartialEq)]
+#[derive(Debug, Copy, Clone, PartialEq, Eq)]
 pub enum DepKind {
     Regular,
     Build,
@@ -16,7 +16,7 @@ pub struct RootCrate {
     pub ver: String,
 }
 
-#[derive(Clone, Debug, PartialEq)]
+#[derive(Clone, Debug, PartialEq, Eq)]
 pub struct ResolvedDep {
     pub name: String,
     pub ver: String,
